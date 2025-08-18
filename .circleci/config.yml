@@ -45,16 +45,11 @@ jobs:
       # Enable Docker support
       - setup_remote_docker:
           docker_layer_caching: true
-      - aws-ecr/build_and_push_image:
-          auth:
-            - aws-ecr/ecr_login:
-                region: "${AWS_DEFAULT_REGION}"
+      - aws-ecr/build_image:
           repo: arxiv-explorer
           tag: "${CIRCLE_SHA1},latest"
           dockerfile: Dockerfile
           path: .
-          region: "${AWS_DEFAULT_REGION}"
-          create_repo: false
       - aws-ecr/push_image:
           repo: arxiv-explorer
           tag: "${CIRCLE_SHA1},latest"
