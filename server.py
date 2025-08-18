@@ -38,45 +38,45 @@ dynamodb = boto3.resource(
 
 print("✅ ArxivExplorer server initialized with DynamoDB.")
 
-# --- Database Setup ---
-def setup_database():
-    """Create DynamoDB tables if they don't exist."""
-    try:
-        # Papers table for storing search results
-        papers_table = dynamodb.create_table(
-            TableName='papers',
-            KeySchema=[
-                {'AttributeName': 'url', 'KeyType': 'HASH'}  # Primary key
-            ],
-            AttributeDefinitions=[
-                {'AttributeName': 'url', 'AttributeType': 'S'}
-            ],
-            BillingMode='PAY_PER_REQUEST'
-        )
-        papers_table.wait_until_exists()
-        print("✅ Created 'papers' table")
-    except dynamodb.meta.client.exceptions.ResourceInUseException:
-        print("✅ 'papers' table already exists")
+# # --- Database Setup ---
+# def setup_database():
+#     """Create DynamoDB tables if they don't exist."""
+#     try:
+#         # Papers table for storing search results
+#         papers_table = dynamodb.create_table(
+#             TableName='papers',
+#             KeySchema=[
+#                 {'AttributeName': 'url', 'KeyType': 'HASH'}  # Primary key
+#             ],
+#             AttributeDefinitions=[
+#                 {'AttributeName': 'url', 'AttributeType': 'S'}
+#             ],
+#             BillingMode='PAY_PER_REQUEST'
+#         )
+#         papers_table.wait_until_exists()
+#         print("✅ Created 'papers' table")
+#     except dynamodb.meta.client.exceptions.ResourceInUseException:
+#         print("✅ 'papers' table already exists")
     
-    try:
-        # Searches table for storing search history
-        searches_table = dynamodb.create_table(
-            TableName='searches',
-            KeySchema=[
-                {'AttributeName': 'search_id', 'KeyType': 'HASH'}
-            ],
-            AttributeDefinitions=[
-                {'AttributeName': 'search_id', 'AttributeType': 'S'}
-            ],
-            BillingMode='PAY_PER_REQUEST'
-        )
-        searches_table.wait_until_exists()
-        print("✅ Created 'searches' table")
-    except dynamodb.meta.client.exceptions.ResourceInUseException:
-        print("✅ 'searches' table already exists")
+#     try:
+#         # Searches table for storing search history
+#         searches_table = dynamodb.create_table(
+#             TableName='searches',
+#             KeySchema=[
+#                 {'AttributeName': 'search_id', 'KeyType': 'HASH'}
+#             ],
+#             AttributeDefinitions=[
+#                 {'AttributeName': 'search_id', 'AttributeType': 'S'}
+#             ],
+#             BillingMode='PAY_PER_REQUEST'
+#         )
+#         searches_table.wait_until_exists()
+#         print("✅ Created 'searches' table")
+#     except dynamodb.meta.client.exceptions.ResourceInUseException:
+#         print("✅ 'searches' table already exists")
 
-# Setup database on startup
-setup_database()
+# # Setup database on startup
+# setup_database()
 
 # Get table references
 papers_table = dynamodb.Table('papers')
