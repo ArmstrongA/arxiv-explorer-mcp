@@ -41,19 +41,27 @@ jobs:
       - image: cimg/aws:2023.06
     steps:
       - checkout
-      - checkout
       # Enable Docker support
       - setup_remote_docker:
           docker_layer_caching: true
-      - aws-ecr/build_image:
-          repo: arxiv-explorer
-          tag: "${CIRCLE_SHA1},latest"
-          dockerfile: Dockerfile
-          path: .
-      - aws-ecr/push_image:
-          repo: arxiv-explorer
-          tag: "${CIRCLE_SHA1},latest"
-  
+      # Login to ECR
+      - aws-ecr/ecr_login:
+          region: "${AWS_DEFAULT_REGION}"
+          account_id: "${AWS_ACCOUNT_ID}"
+      # Build and tag the image
+      - run:
+          name: Build and tag Docker image
+          command: |
+            docker build -t arxiv-explorer:latest .
+            docker tag arxiv-explorer:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/arxiv-explorer:latest
+            docker tag arxiv-explorer:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/arxiv-explorer:${CIRCLE_SHA1}
+      # Push the image
+      - run:
+          name: Push image to ECR
+          command: |
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/arxiv-explorer:latest
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/arxiv-explorer:${CIRCLE_SHA1}
+
 workflows:
   build-deploy:
     jobs:
