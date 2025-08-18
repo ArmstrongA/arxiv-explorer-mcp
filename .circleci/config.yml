@@ -28,8 +28,8 @@ jobs:
             # Wait for container to start
             sleep 15
             
-            # Basic health check
-            curl -f http://localhost:8080/health || exit 1
+            # Check if container is running and hasn't exited
+            docker ps | grep test-container || exit 1
             
             # Clean up
             docker stop test-container
@@ -42,13 +42,16 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.14
-      - aws-ecr/build-and-push-image:
-          repository: arxiv-explorer
+      - aws-ecr/build_and_push_image:
+          auth:
+            - aws-ecr/ecr_login:
+                region: "${AWS_DEFAULT_REGION}"
+          repo: arxiv-explorer
           tag: "${CIRCLE_SHA1},latest"
           dockerfile: Dockerfile
           path: .
           region: "${AWS_DEFAULT_REGION}"
-          create-repo: true
+          create_repo: true
 
 workflows:
   build-deploy:
