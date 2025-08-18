@@ -50,7 +50,7 @@ jobs:
             - aws-ecr/ecr_login:
                 region: "${AWS_DEFAULT_REGION}"
           repo: arxiv-explorer
-          tag: "${CIRCLE_SHA1},latest"
+          tag: "latest"
           dockerfile: Dockerfile
           path: .
           region: "${AWS_DEFAULT_REGION}"
