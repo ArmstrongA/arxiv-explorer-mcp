@@ -3,11 +3,6 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 
-# Add health checks
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-
-
 import boto3
 from fastmcp import FastMCP
 from tavily import TavilyClient
@@ -248,25 +243,6 @@ def explore_topic_prompt(topic: str) -> str:
 
 print("✅ Prompt 'explore_topic_prompt' registered.")
 
-# Add this after your existing imports and setup
-app = FastAPI()
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint for load balancers and monitoring."""
-    try:
-        # Test DynamoDB connection
-        papers_table.meta.client.describe_table(TableName='papers')
-        return JSONResponse({"status": "healthy", "timestamp": datetime.now().isoformat()})
-    except Exception as e:
-        return JSONResponse(
-            {"status": "unhealthy", "error": str(e)}, 
-            status_code=503
-        )
-
-# Mount your MCP server on the FastAPI app
-app.mount("/mcp", mcp.get_app())
-
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    print("\n🚀 Starting ArxivExplorer Server with DynamoDB...")
+    mcp.run(transport="http", host="0.0.0.0", port=8080)
