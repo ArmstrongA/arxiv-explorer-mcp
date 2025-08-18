@@ -9,6 +9,9 @@ jobs:
       - image: cimg/python:3.12
     steps:
       - checkout
+      # Enable Docker support
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Build Docker image
           command: |
@@ -38,6 +41,10 @@ jobs:
       - image: cimg/aws:2023.06
     steps:
       - checkout
+      - checkout
+      # Enable Docker support
+      - setup_remote_docker:
+          docker_layer_caching: true
       - aws-ecr/build_and_push_image:
           auth:
             - aws-ecr/ecr_login:
