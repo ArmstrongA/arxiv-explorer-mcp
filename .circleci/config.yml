@@ -49,7 +49,7 @@ jobs:
           auth:
             - aws-ecr/ecr_login:
                 region: "${AWS_DEFAULT_REGION}"
-                account_id: "${AWS_ACCOUNT_ID}"
+                #account_id: "${AWS_ACCOUNT_ID}"
           repo: arxiv-explorer
           tag: "${CIRCLE_SHA1},latest"
           dockerfile: Dockerfile
