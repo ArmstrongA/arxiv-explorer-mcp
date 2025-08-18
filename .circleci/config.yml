@@ -55,7 +55,7 @@ jobs:
           dockerfile: Dockerfile
           path: .
           region: "${AWS_DEFAULT_REGION}"
-          create_repo: false
+          create_repo: true
 
 workflows:
   build-deploy:
