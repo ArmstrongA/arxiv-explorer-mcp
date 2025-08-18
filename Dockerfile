@@ -1,6 +1,5 @@
 FROM python:3.12.5
 
-# Set working directory
 WORKDIR /app
 
 # Install system dependencies
@@ -18,12 +17,12 @@ COPY . .
 # Install Python dependencies using uv
 RUN uv sync
 
-# Expose port for the MCP server
+# Expose port for the server
 EXPOSE 8080
 
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# Command to run the MCP server
+# Command to run the server
 CMD ["uv", "run", "server.py"]
