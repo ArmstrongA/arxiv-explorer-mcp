@@ -1,0 +1,62 @@
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@9.5.4
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t arxiv-explorer:latest .
+      - run:
+          name: Test Docker image
+          command: |
+            # Start the container with environment variables
+            docker run -d --name test-container \
+              -p 8080:8080 \
+              -e TAVILY_API_KEY="${TAVILY_API_KEY}" \
+              -e AWS_REGION="${AWS_DEFAULT_REGION:-us-east-1}" \
+              arxiv-explorer:latest
+            
+            # Wait for container to start
+            sleep 15
+            
+            # Basic health check
+            curl -f http://localhost:8080/health || exit 1
+            
+            # Clean up
+            docker stop test-container
+            docker rm test-container
+
+  deploy-to-ecr:
+    docker:
+      - image: cimg/aws:2023.06
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - aws-ecr/build-and-push-image:
+          repository: arxiv-explorer
+          tag: "${CIRCLE_SHA1},latest"
+          dockerfile: Dockerfile
+          path: .
+          region: "${AWS_DEFAULT_REGION}"
+          create-repo: true
+
+workflows:
+  build-deploy:
+    jobs:
+      - build-and-test
+      - deploy-to-ecr:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only: main
