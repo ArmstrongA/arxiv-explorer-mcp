@@ -49,12 +49,15 @@ jobs:
           auth:
             - aws-ecr/ecr_login:
                 region: "${AWS_DEFAULT_REGION}"
+                account_id: "${AWS_ACCOUNT_ID}"
+                aws_access_key_id: "${AWS_ACCESS_KEY_ID}"
+                aws_secret_access_key: "${AWS_SECRET_ACCESS_KEY}"
           repo: arxiv-explorer
           tag: "${CIRCLE_SHA1},latest"
           dockerfile: Dockerfile
           path: .
           region: "${AWS_DEFAULT_REGION}"
-          create_repo: true
+          create_repo: false
 
 workflows:
   build-deploy:
