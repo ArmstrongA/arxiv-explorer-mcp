@@ -9,8 +9,6 @@ jobs:
       - image: cimg/python:3.12
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.14
       - run:
           name: Build Docker image
           command: |
@@ -40,8 +38,6 @@ jobs:
       - image: cimg/aws:2023.06
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.14
       - aws-ecr/build_and_push_image:
           auth:
             - aws-ecr/ecr_login:
