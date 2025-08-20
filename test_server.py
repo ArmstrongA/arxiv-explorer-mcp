@@ -6,8 +6,8 @@ from fastmcp import Client
 from fastmcp.client.transports import StreamableHttpTransport
 
 # --- Configuration ---
-SERVER_URL = "http://localhost:8080/mcp"  # Updated port for our enhanced server
-
+#SERVER_URL = "http://localhost:8080/mcp"  # Updated port for our enhanced server
+SERVER_URL = "https://3yjaa8aqs3.us-east-1.awsapprunner.com/mcp"
 pp = pprint.PrettyPrinter(indent=2, width=100)
 
 def unwrap_tool_result(resp):

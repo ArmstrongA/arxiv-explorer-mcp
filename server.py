@@ -8,7 +8,12 @@ from fastmcp import FastMCP
 from tavily import TavilyClient
 from dotenv import load_dotenv
 
-load_dotenv()
+# Only load .env file if it exists (for local development)
+if os.path.exists('.env'):
+    load_dotenv()
+    print("✅ Loaded .env file for local development")
+else:
+    print("✅ No .env file found - using environment variables from runtime")
 
 # --- Configuration ---
 TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
@@ -16,62 +21,33 @@ if not TAVILY_API_KEY:
     raise ValueError("Please set the TAVILY_API_KEY environment variable.")
 
 # DynamoDB Configuration
-DYNAMODB_ENDPOINT = os.environ.get("DYNAMODB_ENDPOINT", "http://localhost:8000")
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")                                                                       
+AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+DYNAMODB_ENDPOINT = os.environ.get("DYNAMODB_ENDPOINT")  # Only set for local development
+
+# Check DynamoDB endpoint configuration
+if DYNAMODB_ENDPOINT:
+    print(f"🔧 Using DynamoDB Local endpoint: {DYNAMODB_ENDPOINT}")
+else:
+    print("🔧 Using AWS DynamoDB service (production mode)")
+
 # Initialize clients
 tavily = TavilyClient(api_key=TAVILY_API_KEY)
 mcp = FastMCP(name="ArxivExplorer")
 
-# Initialize DynamoDB
-dynamodb = boto3.resource(
-    'dynamodb',
-    #endpoint_url=DYNAMODB_ENDPOINT,
-    region_name=AWS_REGION,
-    aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),  # add real credentials in production
-    aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
-)
+# Initialize DynamoDB with conditional endpoint
+dynamodb_config = {
+    'region_name': AWS_REGION,
+    'aws_access_key_id': os.environ.get("AWS_ACCESS_KEY_ID"),
+    'aws_secret_access_key': os.environ.get("AWS_SECRET_ACCESS_KEY")
+}
+
+# Only add endpoint_url if DYNAMODB_ENDPOINT is set (for local development)
+if DYNAMODB_ENDPOINT:
+    dynamodb_config['endpoint_url'] = DYNAMODB_ENDPOINT
+
+dynamodb = boto3.resource('dynamodb', **dynamodb_config)
 
 print("✅ ArxivExplorer server initialized with DynamoDB.")
-
-# # --- Database Setup ---
-# def setup_database():
-#     """Create DynamoDB tables if they don't exist."""
-#     try:
-#         # Papers table for storing search results
-#         papers_table = dynamodb.create_table(
-#             TableName='papers',
-#             KeySchema=[
-#                 {'AttributeName': 'url', 'KeyType': 'HASH'}  # Primary key
-#             ],
-#             AttributeDefinitions=[
-#                 {'AttributeName': 'url', 'AttributeType': 'S'}
-#             ],
-#             BillingMode='PAY_PER_REQUEST'
-#         )
-#         papers_table.wait_until_exists()
-#         print("✅ Created 'papers' table")
-#     except dynamodb.meta.client.exceptions.ResourceInUseException:
-#         print("✅ 'papers' table already exists")
-    
-#     try:
-#         # Searches table for storing search history
-#         searches_table = dynamodb.create_table(
-#             TableName='searches',
-#             KeySchema=[
-#                 {'AttributeName': 'search_id', 'KeyType': 'HASH'}
-#             ],
-#             AttributeDefinitions=[
-#                 {'AttributeName': 'search_id', 'AttributeType': 'S'}
-#             ],
-#             BillingMode='PAY_PER_REQUEST'
-#         )
-#         searches_table.wait_until_exists()
-#         print("✅ Created 'searches' table")
-#     except dynamodb.meta.client.exceptions.ResourceInUseException:
-#         print("✅ 'searches' table already exists")
-
-# # Setup database on startup
-# setup_database()
 
 # Get table references
 papers_table = dynamodb.Table('papers')
